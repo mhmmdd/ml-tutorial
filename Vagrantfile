@@ -1,3 +1,15 @@
+$configure_docker = <<SCRIPT
+sudo mkdir -p /etc/systemd/system/docker.service.d
+sudo touch /etc/systemd/system/docker.service.d/docker.conf
+sudo cat <<EOF >> /etc/systemd/system/docker.service.d/docker.conf
+[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd -H unix:///var/run/docker.sock -H tcp://0.0.0.0:2375
+EOF
+sudo systemctl daemon-reload
+sudo service docker restart
+SCRIPT
+
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
@@ -49,7 +61,7 @@ Vagrant.configure("2") do |config|
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   config.vm.provider "virtualbox" do |vb|
-    vb.name = "machine-learning-machine"
+    vb.name = "ml-tutorial-machine"
     
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
@@ -104,12 +116,14 @@ Vagrant.configure("2") do |config|
   #   apt-get update
   #   apt-get install -y apache2
   # SHELL
-  config.vm.provision "run", type: "shell", privileged: false, run: "always",
-	inline: <<-SHELL
-	  echo "=============================================="
-	  sudo systemctl stop docker.service
-	  sudo dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --api-cors-header='*' --default-ulimit=nofile=8192:16384 --default-ulimit=nproc=8192:16384 -D &
-	  curl localhost:2375/version
-	  echo "=============================================="
+
+  # Enable the Docker Remote API to be accessed externally.
+  #  Reference: https://www.ivankrizsan.se/2016/05/18/enabling-docker-remote-api-on-ubuntu-16-04/
+  config.vm.provision "shell", inline: $configure_docker
+
+  config.vm.provision "shell", run: "always", inline: <<-SHELL
+    echo "=============================================="
+    curl localhost:2375/version
+    echo "=============================================="
   SHELL
 end
