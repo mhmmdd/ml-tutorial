@@ -77,7 +77,7 @@ Vagrant.configure("2") do |config|
     vb.customize ['modifyvm', :id, '--draganddrop', 'bidirectional']
 
     vb.gui = false
-    vb.memory = "7168"
+    vb.memory = "2048"
     vb.cpus = 2
   end
 
@@ -104,7 +104,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision :docker_compose
 
   # custom installations
-  config.vm.provision "docker", images: ["antoniosap/docker-python3-opencv4-gui:latest"]
+  config.vm.provision "docker", images: ["mhmmdd/docker-tensorflow-python3-opencv4-gui:latest"]
     
   
   # View the documentation for the provider you are using for more
