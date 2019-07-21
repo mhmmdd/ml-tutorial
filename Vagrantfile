@@ -54,6 +54,7 @@ Vagrant.configure("2") do |config|
   # NOTE: This will enable public access to the opened port
   config.vm.network "forwarded_port", guest: 2375, host: 2375, disabled: false # docker
   config.vm.network "forwarded_port", guest: 8888, host: 8888, disabled: false # jupyter
+  config.vm.network "forwarded_port", guest: 5901, host: 5901, disabled: false # firefox
 
   config.ssh.forward_agent = true
   config.ssh.forward_x11 = true
